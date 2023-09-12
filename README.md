@@ -11,7 +11,7 @@ git clone https://github.com/noam-honig/food-basket-delivery.git
 
 ### Step 2:
 duplicate the `sample.env` to `.env` and set the correct values in it in terms of google api keys etc....
-
+ 
 
 ## To run the app
 ```
