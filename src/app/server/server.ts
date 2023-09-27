@@ -408,7 +408,7 @@ s.parentNode.insertBefore(b, s);})();
       }
     }
   }
-  // app.use(compression())
+  app.use(compression())
   //
 
   const siteEventPublishers = new Map<
