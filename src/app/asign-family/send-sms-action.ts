@@ -272,46 +272,66 @@ export class SendSmsUtils {
             console.log('data :' + data);
             
             console.log('data length :' + Buffer.byteLength(data));
+
+            let r = await fetch.default(
+              options.host,
+              {
+                method: 'POST',
+                headers: options.headers,
+                body: data
+              }
+            );
+
+            
+
     
-            var req = http.request(options, function(res) {
-              //console.log('headers:\n' + JSON.stringify(res.headers));
-              //console.log('status:\n' + JSON.stringify(res.statusCode));
+            // var req = http.request(options, function(res) {
+            //   //console.log('headers:\n' + JSON.stringify(res.headers));
+            //   //console.log('status:\n' + JSON.stringify(res.statusCode));
               
-              res.setEncoding('utf8');
-              res.on('data', function (chunk) {
-                //console.log('body:\n' + chunk);
+            //   res.setEncoding('utf8');
+            //   res.on('data', function (chunk) {
+            //     //console.log('body:\n' + chunk);
                 
-                //******parse results***************************************
-                //run as administrator
-                //npm install xmlparser - IMPORTANT !
-                var xml2json = require("xmlparser");
-                var xml=chunk;
+            //     //******parse results***************************************
+            //     //run as administrator
+            //     //npm install xmlparser - IMPORTANT !
+            //     var xml2json = require("xmlparser");
+            //     var xml=chunk;
                 
-                xml=xml.substr(xml.indexOf("<sendSmsToRecipientsResponse"),xml.indexOf("</sendSmsToRecipientsResponse")-xml.indexOf("<sendSmsToRecipientsResponse"))
-                console.log(xml); 
-                var json = xml2json.parser(xml);
-                var res = json.sendSmsToRecipientsResponse.sendSmsToRecipientsResult
-                console.log('cost: ' + res);
+            //     xml=xml.substr(xml.indexOf("<sendSmsToRecipientsResponse"),xml.indexOf("</sendSmsToRecipientsResponse")-xml.indexOf("<sendSmsToRecipientsResponse"))
+            //     console.log(xml); 
+            //     var json = xml2json.parser(xml);
+            //     var res = json.sendSmsToRecipientsResponse.sendSmsToRecipientsResult
+            //     console.log('cost: ' + res);
 
                
-                console.log('sms response for:' + schema + ' - ' + res)
-                return res
+            //     console.log('sms response for:' + schema + ' - ' + res)
+            //     return res
 
               
-              });
-            });
+            //   });
+            // });
 
-            req.on('error', function(e) {
-              console.log('problem with request: ' + e.message);
-            });
+            // req.on('error', function(e) {
+            //   console.log('problem with request: ' + e.message);
+            // });
             
-            //console.log('data :' + data);
-            req.write(data);
-            req.end();
+            // //console.log('data :' + data);
+            // req.write(data);
+            // req.end();
   
 
+            let res = await r.text()
+            let orig = res
+            let t = '<sendSmsToRecipientsResult>'
+            let i = res.indexOf(t)
+            if (i >= 0) {
+              res = res.substring(i + t.length)
+              res = res.substring(0, res.indexOf('<'))
 
-
+            console.log('sms response for:' + schema + ' - ' + res)
+            return res
 
 
           } else {
