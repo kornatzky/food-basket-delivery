@@ -269,9 +269,9 @@ export class SendSmsUtils {
             }
     
     
-            //console.log('data :' + data);
+            console.log('data :' + data);
             
-            //console.log('data length :' + Buffer.byteLength(data));
+            console.log('data length :' + Buffer.byteLength(data));
     
             var req = http.request(options, function(res) {
               //console.log('headers:\n' + JSON.stringify(res.headers));
@@ -288,7 +288,7 @@ export class SendSmsUtils {
                 var xml=chunk;
                 
                 xml=xml.substr(xml.indexOf("<sendSmsToRecipientsResponse"),xml.indexOf("</sendSmsToRecipientsResponse")-xml.indexOf("<sendSmsToRecipientsResponse"))
-                //console.log(xml); 
+                console.log(xml); 
                 var json = xml2json.parser(xml);
                 var res = json.sendSmsToRecipientsResponse.sendSmsToRecipientsResult
                 console.log('cost: ' + res);
