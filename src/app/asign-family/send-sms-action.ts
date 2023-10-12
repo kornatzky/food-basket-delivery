@@ -238,62 +238,82 @@ export class SendSmsUtils {
             .replace(/'/g, '&apos;')
 
           if (useGlobalSms) {
-            let data =
-              '<?xml version="1.0" encoding="utf-8"?>' +
-              '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">' +
-              '<soap12:Body>' +
-              '<sendSmsToRecipients xmlns="apiItnewsletter">' +
-              '<un>' +
-              un +
-              '</un>' +
-              '<pw>' +
-              pw +
-              '</pw>' +
-              '<accid>' +
-              accid +
-              '</accid>' +
-              '<sysPW>' +
-              'itnewslettrSMS' +
-              '</sysPW>' +
-              '<t>' +
-              date +
-              '</t>' +
-              '<txtUserCellular>' +
-              from +
-              '</txtUserCellular>' +
-              '<destination>' +
-              phone +
-              '</destination>' +
-              '<txtSMSmessage>' +
-              message +
-              '</txtSMSmessage>' +
-              '<dteToDeliver></dteToDeliver>' +
-              '<txtAddInf>jsnodetest</txtAddInf>' +
-              '</sendSmsToRecipients>' +
-              '</soap12:Body>' +
-              '</soap12:Envelope>'
-            let h = new fetch.Headers()
-            h.append('Content-Type', 'text/xml; charset=utf-8')
-            h.append('SOAPAction', 'apiItnewsletter/sendSmsToRecipients')
-            let r = await fetch.default(
-              'https://sapi.itnewsletter.co.il/webservices/webservicesms.asmx',
-              {
-                method: 'POST',
-                headers: h,
-                body: data
-              }
-            )
 
-            let res = await r.text()
-            let orig = res
-            let t = '<sendSmsToRecipientsResult>'
-            let i = res.indexOf(t)
-            if (i >= 0) {
-              res = res.substring(i + t.length)
-              res = res.substring(0, res.indexOf('<'))
+            var options = {
+              host: 'api.itnewsletter.co.il',
+              port: 80,
+              path:   '/webservices/WsSMS.asmx',
+              method: 'POST'
             }
-            console.log('sms response for:' + schema + ' - ' + res)
-            return res
+
+            var data = 
+            '<?xml version="1.0" encoding="utf-8"?>'+
+            '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">'+
+                '<soap12:Body>'+
+                  '<sendSmsToRecipients xmlns="apiGlobalSms">'+
+                      '<ApiKey>'+accid+'</ApiKey>'+
+                      '<txtOriginator>0521234567</txtOriginator>'+
+                      '<destinations>'+phone+'</destinations>'+
+                      '<txtSMSmessage>'+message+'</txtSMSmessage>'+
+                      '<dteToDeliver></dteToDeliver>'+
+                  '<txtAddInf>jsnodetest</txtAddInf>'+
+                  '</sendSmsToRecipients>'+
+                '</soap12:Body>'+
+            '</soap12:Envelope>';
+
+
+            options.headers = {
+              'Content-Type' : 'text/xml; charset=utf-8',
+              'Content-Length' : Buffer.byteLength(data) ,
+              'SOAPAction': 'apiGlobalSms/sendSmsToRecipients'
+            }
+    
+    
+            //console.log('data :' + data);
+            
+            //console.log('data length :' + Buffer.byteLength(data));
+    
+            var req = http.request(options, function(res) {
+              //console.log('headers:\n' + JSON.stringify(res.headers));
+              //console.log('status:\n' + JSON.stringify(res.statusCode));
+              
+              res.setEncoding('utf8');
+              res.on('data', function (chunk) {
+                //console.log('body:\n' + chunk);
+                
+                //******parse results***************************************
+                //run as administrator
+                //npm install xmlparser - IMPORTANT !
+                var xml2json = require("xmlparser");
+                var xml=chunk;
+                
+                xml=xml.substr(xml.indexOf("<sendSmsToRecipientsResponse"),xml.indexOf("</sendSmsToRecipientsResponse")-xml.indexOf("<sendSmsToRecipientsResponse"))
+                //console.log(xml); 
+                var json = xml2json.parser(xml);
+                var res = json.sendSmsToRecipientsResponse.sendSmsToRecipientsResult
+                console.log('cost: ' + res);
+
+               
+                console.log('sms response for:' + schema + ' - ' + res)
+                return res
+
+              
+              });
+            });
+
+            req.on('error', function(e) {
+              console.log('problem with request: ' + e.message);
+            });
+            
+            //console.log('data :' + data);
+            req.write(data);
+            req.end();
+  
+
+
+
+
+
           } else {
             const data = `
 <Inforu>
