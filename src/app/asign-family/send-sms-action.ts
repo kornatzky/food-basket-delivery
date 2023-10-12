@@ -329,6 +329,8 @@ export class SendSmsUtils {
   
 
             let res = await r.text()
+            console.log('res', res);
+
             let orig = res
             let t = '<sendSmsToRecipientsResult>'
             let i = res.indexOf(t)
