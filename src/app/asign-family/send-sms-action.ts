@@ -239,14 +239,14 @@ export class SendSmsUtils {
 
           if (useGlobalSms) {
 
-            var options = {
+            const options = {
               host: 'api.itnewsletter.co.il',
               port: 80,
               path:   '/webservices/WsSMS.asmx',
               method: 'POST'
             }
 
-            var data = 
+            const data = 
             '<?xml version="1.0" encoding="utf-8"?>'+
             '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">'+
                 '<soap12:Body>'+
@@ -262,27 +262,33 @@ export class SendSmsUtils {
             '</soap12:Envelope>';
 
 
-            options.headers = {
-              'Content-Type' : 'text/xml; charset=utf-8',
-              'Content-Length' : Buffer.byteLength(data) ,
-              'SOAPAction': 'apiGlobalSms/sendSmsToRecipients'
-            }
+            // const headers = {
+            //   'Content-Type' : 'text/xml; charset=utf-8',
+            //   'Content-Length' : Buffer.byteLength(data) ,
+            //   'SOAPAction': 'apiGlobalSms/sendSmsToRecipients'
+            // }
+
+            let h = new fetch.Headers()
+            h.append('Content-Type', 'text/xml; charset=utf-8')
+            h.append('SOAPAction', 'apiItnewsletter/sendSmsToRecipients')
+            h.append('Content-Length', Buffer.byteLength(data).toString())
+
     
     
             console.log('data :' + data);
             
-            console.log('data length :' + Buffer.byteLength(data));
+            console.log('data length :' + Buffer.byteLength(data).toString());
 
             let r = await fetch.default(
               options.host,
               {
                 method: 'POST',
-                headers: options.headers,
+                headers: h,
                 body: data
               }
             );
 
-            
+
 
     
             // var req = http.request(options, function(res) {
@@ -329,6 +335,7 @@ export class SendSmsUtils {
             if (i >= 0) {
               res = res.substring(i + t.length)
               res = res.substring(0, res.indexOf('<'))
+            }
 
             console.log('sms response for:' + schema + ' - ' + res)
             return res
